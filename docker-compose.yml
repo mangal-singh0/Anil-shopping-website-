@@ -1,0 +1,51 @@
+version: '3.3'
+
+services:
+  backend:
+    build: ./backend
+    container_name: anil_steel_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - MYSQL_HOST=db
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=User123!
+      - MYSQL_DB=anilsteel
+      - JWT_SECRET_KEY=super-secret-key-change-me
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/app
+      - ./backend/uploads:/app/uploads
+
+  frontend:
+    build: ./frontend
+    container_name: anil_steel_frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    depends_on:
+      - backend
+
+  db:
+    image: mysql:8.0
+    container_name: anil_steel_db
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root_password
+      - MYSQL_DATABASE=anilsteel
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=User123!
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./mysql-init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  db_data:
