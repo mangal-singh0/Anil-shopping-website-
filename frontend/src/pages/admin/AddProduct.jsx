@@ -67,7 +67,7 @@ const AddProduct = () => {
       setIsUploading(true);
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        'http://localhost:5000/api/products/admin/add',
+        'http://localhost:5001/api/products/admin/add',
         formDataToSend,
         {
           headers: {

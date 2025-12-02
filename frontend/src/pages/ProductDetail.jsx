@@ -18,7 +18,7 @@ const ProductDetail = () => {
     useEffect(() => {
         const fetchProduct = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/api/products/${id}`);
+                const response = await axios.get(`http://localhost:5001/api/products/${id}`);
                 setProduct(response.data);
             } catch (error) {
                 console.error('Failed to fetch product', error);
@@ -37,9 +37,9 @@ const ProductDetail = () => {
     const submitReview = async (e) => {
         e.preventDefault();
         try {
-            await axios.post(`http://localhost:5000/api/products/${id}/reviews`, reviewForm);
+            await axios.post(`http://localhost:5001/api/products/${id}/reviews`, reviewForm);
             // Refresh product to see new review
-            const response = await axios.get(`http://localhost:5000/api/products/${id}`);
+            const response = await axios.get(`http://localhost:5001/api/products/${id}`);
             setProduct(response.data);
             setReviewForm({ rating: 5, comment: '' });
         } catch (error) {

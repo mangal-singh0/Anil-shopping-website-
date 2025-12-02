@@ -13,7 +13,7 @@ const Orders = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/orders');
+                const response = await axios.get('http://localhost:5001/api/orders');
                 setOrders(response.data);
             } catch (error) {
                 console.error('Failed to fetch orders', error);
@@ -36,7 +36,7 @@ const Orders = () => {
         setExpandedOrder(orderId);
         if (!orderDetails[orderId]) {
             try {
-                const response = await axios.get(`http://localhost:5000/api/orders/${orderId}`);
+                const response = await axios.get(`http://localhost:5001/api/orders/${orderId}`);
                 setOrderDetails(prev => ({ ...prev, [orderId]: response.data }));
             } catch (error) {
                 console.error('Failed to fetch order details', error);

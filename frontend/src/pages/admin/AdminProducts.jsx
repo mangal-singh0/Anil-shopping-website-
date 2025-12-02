@@ -16,7 +16,7 @@ const AdminProducts = () => {
   const fetchProducts = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/products', {
+      const response = await axios.get('http://localhost:5001/api/products', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setProducts(response.data);
@@ -32,7 +32,7 @@ const AdminProducts = () => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
         const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/products/${id}`, {
+        await axios.delete(`http://localhost:5001/api/products/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         toast.success('Product deleted successfully');

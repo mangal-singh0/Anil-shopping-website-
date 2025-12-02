@@ -35,7 +35,7 @@ const Cart = () => {
 
     const onCheckout = async (data) => {
         try {
-            await axios.post('http://localhost:5000/api/orders', {
+            await axios.post('http://localhost:5001/api/orders', {
                 shipping: {
                     name: data.name,
                     phone: data.phone,

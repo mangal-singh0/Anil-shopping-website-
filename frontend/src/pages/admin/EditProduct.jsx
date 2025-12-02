@@ -33,7 +33,7 @@ const EditProduct = () => {
     const fetchProduct = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`http://localhost:5000/api/products/${id}`, {
+        const response = await axios.get(`http://localhost:5001/api/products/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -47,8 +47,8 @@ const EditProduct = () => {
         });
         
         if (product.image_url) {
-          setOriginalImage(`http://localhost:5000${product.image_url}`);
-          setPreview(`http://localhost:5000${product.image_url}`);
+          setOriginalImage(`http://localhost:5001${product.image_url}`);
+          setPreview(`http://localhost:5001${product.image_url}`);
         }
         
       } catch (error) {
@@ -100,7 +100,7 @@ const EditProduct = () => {
       setIsUploading(true);
       const token = localStorage.getItem('token');
       const response = await axios.put(
-        `http://localhost:5000/api/products/${id}`,
+        `http://localhost:5001/api/products/${id}`,
         formDataToSend,
         {
           headers: {

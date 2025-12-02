@@ -33,7 +33,7 @@ const ProductList = () => {
             if (filters.min_price) params.append('min_price', filters.min_price);
             if (filters.max_price) params.append('max_price', filters.max_price);
 
-            const response = await axios.get(`http://localhost:5000/api/products?${params.toString()}`);
+            const response = await axios.get(`http://localhost:5001/api/products?${params.toString()}`);
             setProducts(response.data.products);
         } catch (error) {
             console.error('Failed to fetch products', error);
