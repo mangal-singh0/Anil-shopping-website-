@@ -12,6 +12,10 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+    
+    // Debug logging
+    console.log('Navbar - User:', user);
+    console.log('Navbar - isAuthenticated:', isAuthenticated);
 
     const handleLogout = () => {
         logout();
@@ -38,6 +42,11 @@ const Navbar = () => {
                                     Orders
                                 </Link>
                             )}
+                            {user?.is_admin && (
+                                <Link to="/admin" className="text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 border-transparent hover:border-primary-500 text-sm font-medium">
+                                    Admin Panel
+                                </Link>
+                            )}
                         </div>
                     </div>
                     <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
@@ -53,6 +62,11 @@ const Navbar = () => {
                         {isAuthenticated ? (
                             <div className="relative ml-3 flex items-center space-x-4">
                                 <span className="text-sm font-medium text-gray-700">Hi, {user?.name}</span>
+                                {user?.is_admin && (
+                                    <Link to="/admin" className="text-gray-500 hover:text-gray-700">
+                                        <Settings className="h-5 w-5" />
+                                    </Link>
+                                )}
                                 <button
                                     onClick={handleLogout}
                                     className="p-2 text-gray-600 hover:text-red-600"

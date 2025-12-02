@@ -1,5 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -9,6 +9,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Cart from './pages/Cart';
 import Orders from './pages/Orders';
+import AdminLayout from './components/layout/AdminLayout';
+import AdminProducts from './pages/admin/AdminProducts';
+import AddProduct from './pages/admin/AddProduct';
+import EditProduct from './pages/admin/EditProduct';
 
 function App() {
     return (
@@ -26,6 +30,20 @@ function App() {
                                 <Route path="/register" element={<Register />} />
                                 <Route path="/cart" element={<Cart />} />
                                 <Route path="/orders" element={<Orders />} />
+                                
+                                {/* Admin Routes */}
+                                <Route path="/admin" element={
+                                    <ProtectedRoute>
+                                        <AdminLayout />
+                                    </ProtectedRoute>
+                                }>
+                                    <Route index element={<Navigate to="/admin/products" replace />} />
+                                    <Route path="products" element={<AdminProducts />} />
+                                    <Route path="products/add" element={<AddProduct />} />
+                                    <Route path="products/edit/:id" element={<EditProduct />} />
+                                    <Route path="orders" element={<div>Admin Orders</div>} />
+                                    <Route path="users" element={<div>Users</div>} />
+                                </Route>
                             </Routes>
                         </main>
                         <footer className="bg-white border-t border-gray-200 mt-auto">
@@ -41,5 +59,20 @@ function App() {
         </AuthProvider>
     );
 }
+
+// Protected Route Component
+const ProtectedRoute = ({ children }) => {
+    const { isAuthenticated, user } = useAuth();
+    
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
+    }
+    
+    if (!user?.is_admin) {
+        return <Navigate to="/" replace />;
+    }
+    
+    return children;
+};
 
 export default App;

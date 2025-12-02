@@ -1,9 +1,16 @@
 from flask import Blueprint, request, jsonify
-from app import db, jwt
-from models import User
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_sqlalchemy import SQLAlchemy
+from flask_jwt_extended import JWTManager
 import datetime
+
+# These will be initialized in create_app
+db = SQLAlchemy()
+jwt = JWTManager()
+
+# Import models after db to avoid circular imports
+from models import User
 
 auth_bp = Blueprint('auth', __name__)
 

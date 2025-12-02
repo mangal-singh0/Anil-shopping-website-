@@ -1,10 +1,11 @@
 import os
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, send_from_directory
 from app import db
 from models import Product, Category, ProductImage, User
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request
 from werkzeug.utils import secure_filename
 import uuid
+import os
 
 products_bp = Blueprint('products', __name__)
 
@@ -14,9 +15,13 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def is_admin():
-    user_id = get_jwt_identity()
-    user = User.query.get(user_id)
-    return user and user.is_admin
+    try:
+        verify_jwt_in_request()
+        user_id = get_jwt_identity()
+        user = User.query.get(user_id)
+        return user and user.is_admin
+    except:
+        return False
 
 @products_bp.route('', methods=['GET'])
 def get_products():
@@ -90,39 +95,112 @@ def create_product():
     if not is_admin():
         return jsonify({'message': 'Admin access required'}), 403
         
-    data = request.form
+    data = request.get_json()
     
-    if not data.get('name') or not data.get('price'):
+    if not data or not all(k in data for k in ['name', 'price', 'description', 'category']):
         return jsonify({'message': 'Missing required fields'}), 400
+    
+    try:
+        # Find or create category
+        category = Category.query.filter_by(name=data['category']).first()
+        if not category:
+            category = Category(name=data['category'], slug=data['category'].lower().replace(' ', '_'))
+            db.session.add(category)
+            db.session.flush()  # Get the category ID
         
-    # Handle Image Upload
-    image_url = ''
-    if 'image' in request.files:
-        file = request.files['image']
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            unique_filename = f"{uuid.uuid4()}_{filename}"
-            file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
-            image_url = f"{request.host_url}uploads/{unique_filename}" # Absolute URL for simplicity
+        product = Product(
+            name=data['name'],
+            price=float(data['price']),
+            description=data['description'],
+            category_id=category.id,
+            stock=int(data.get('stock', 0)),
+            image_url=data.get('image_url', '')
+        )
+        
+        db.session.add(product)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Product created successfully',
+            'product': product.to_dict()
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'message': str(e)}), 500
+
+@products_bp.route('/admin/add', methods=['POST'])
+@jwt_required()
+def admin_add_product():
+    if not is_admin():
+        return jsonify({'message': 'Admin access required'}), 403
     
-    # Handle Category
-    category_id = data.get('category_id')
-    # If category_id is not provided, maybe create or find by name? For MVP assume ID or handle later.
+    if 'image' not in request.files:
+        return jsonify({'message': 'No image file provided'}), 400
     
-    new_product = Product(
-        name=data['name'],
-        slug=data['name'].lower().replace(' ', '-'), # Simple slug generation
-        description=data.get('description'),
-        price=data['price'],
-        stock=data.get('stock', 0),
-        category_id=category_id,
-        image_url=image_url
-    )
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'message': 'No selected file'}), 400
     
-    db.session.add(new_product)
-    db.session.commit()
+    if not allowed_file(file.filename):
+        return jsonify({'message': 'File type not allowed'}), 400
     
-    return jsonify({'message': 'Product created', 'id': new_product.id}), 201
+    try:
+        # Save the uploaded file
+        filename = secure_filename(file.filename)
+        unique_filename = f"{uuid.uuid4()}_{filename}"
+        upload_folder = current_app.config['UPLOAD_FOLDER']
+        os.makedirs(upload_folder, exist_ok=True)
+        filepath = os.path.join(upload_folder, unique_filename)
+        file.save(filepath)
+        
+        # Get form data
+        name = request.form.get('name')
+        price = float(request.form.get('price', 0))
+        description = request.form.get('description', '')
+        category = request.form.get('category', 'uncategorized')
+        stock = int(request.form.get('stock', 0))
+        
+        # Find or create category
+        category_obj = Category.query.filter_by(slug=category).first()
+        if not category_obj:
+            category_name = ' '.join(word.capitalize() for word in category.split('_'))
+            category_obj = Category(name=category_name, slug=category)
+            db.session.add(category_obj)
+            db.session.flush()
+        
+        # Create product
+        product = Product(
+            name=name,
+            slug=name.lower().replace(' ', '-'),
+            price=price,
+            description=description,
+            category_id=category_obj.id,
+            stock=stock,
+            image_url=f"/uploads/{unique_filename}"
+        )
+        
+        db.session.add(product)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Product added successfully',
+            'product': {
+                'id': product.id,
+                'name': product.name,
+                'price': product.price,
+                'description': product.description,
+                'category': category_obj.name,
+                'stock': product.stock,
+                'image_url': product.image_url
+            }
+        }), 201
+        
+    except Exception as e:
+        if 'filepath' in locals() and os.path.exists(filepath):
+            os.remove(filepath)
+        db.session.rollback()
+        return jsonify({'message': str(e)}), 500
 
 @products_bp.route('/<int:id>', methods=['PUT'])
 @jwt_required()
