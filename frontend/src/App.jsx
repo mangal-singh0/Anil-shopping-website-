@@ -13,6 +13,7 @@ import AdminLayout from './components/layout/AdminLayout';
 import AdminProducts from './pages/admin/AdminProducts';
 import AddProduct from './pages/admin/AddProduct';
 import EditProduct from './pages/admin/EditProduct';
+import AdminOrders from './pages/admin/AdminOrders';
 
 function App() {
     return (
@@ -30,7 +31,7 @@ function App() {
                                 <Route path="/register" element={<Register />} />
                                 <Route path="/cart" element={<Cart />} />
                                 <Route path="/orders" element={<Orders />} />
-                                
+
                                 {/* Admin Routes */}
                                 <Route path="/admin" element={
                                     <ProtectedRoute>
@@ -41,7 +42,7 @@ function App() {
                                     <Route path="products" element={<AdminProducts />} />
                                     <Route path="products/add" element={<AddProduct />} />
                                     <Route path="products/edit/:id" element={<EditProduct />} />
-                                    <Route path="orders" element={<div>Admin Orders</div>} />
+                                    <Route path="orders" element={<AdminOrders />} />
                                     <Route path="users" element={<div>Users</div>} />
                                 </Route>
                             </Routes>
@@ -62,16 +63,24 @@ function App() {
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
-    const { isAuthenticated, user } = useAuth();
-    
+    const { isAuthenticated, user, loading } = useAuth();
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-screen">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            </div>
+        );
+    }
+
     if (!isAuthenticated) {
         return <Navigate to="/login" replace />;
     }
-    
+
     if (!user?.is_admin) {
         return <Navigate to="/" replace />;
     }
-    
+
     return children;
 };
 

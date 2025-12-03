@@ -80,7 +80,7 @@ class Order(db.Model):
     shipping_name = db.Column(db.String(100))
     shipping_phone = db.Column(db.String(20))
     shipping_address = db.Column(db.Text)
-    status = db.Column(db.Enum('Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'), default='Placed')
+    status = db.Column(db.Enum('Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Refunded'), default='Placed')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     items = db.relationship('OrderItem', backref='order', lazy=True, cascade="all, delete-orphan")

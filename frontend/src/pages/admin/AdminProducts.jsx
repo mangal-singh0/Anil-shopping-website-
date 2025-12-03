@@ -19,7 +19,7 @@ const AdminProducts = () => {
       const response = await axios.get('http://localhost:5001/api/products', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setProducts(response.data);
+      setProducts(response.data.products);
     } catch (error) {
       console.error('Error fetching products:', error);
       toast.error('Failed to load products');

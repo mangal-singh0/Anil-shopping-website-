@@ -64,12 +64,19 @@ def create_order():
 @jwt_required()
 def get_orders():
     user_id = get_jwt_identity()
-    orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
+    user = User.query.get(user_id)
+    
+    if user.is_admin:
+        orders = Order.query.order_by(Order.created_at.desc()).all()
+    else:
+        orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
     
     result = []
     for order in orders:
         result.append({
             'id': order.id,
+            'user_id': order.user_id,
+            'customer_name': order.shipping_name or 'N/A',
             'total_amount': float(order.total_amount),
             'status': order.status,
             'created_at': order.created_at.isoformat(),

@@ -36,7 +36,7 @@ def register():
     db.session.add(new_user)
     db.session.commit()
     
-    access_token = create_access_token(identity=new_user.id, expires_delta=datetime.timedelta(days=1))
+    access_token = create_access_token(identity=str(new_user.id), expires_delta=datetime.timedelta(days=1))
     
     return jsonify({
         'message': 'User registered successfully',
@@ -61,7 +61,7 @@ def login():
     if not user or not check_password_hash(user.password_hash, data['password']):
         return jsonify({'message': 'Invalid credentials'}), 401
     
-    access_token = create_access_token(identity=user.id, expires_delta=datetime.timedelta(days=1))
+    access_token = create_access_token(identity=str(user.id), expires_delta=datetime.timedelta(days=1))
     
     return jsonify({
         'message': 'Login successful',
@@ -78,7 +78,7 @@ def login():
 @jwt_required()
 def get_me():
     current_user_id = get_jwt_identity()
-    user = User.query.get(current_user_id)
+    user = User.query.get(int(current_user_id))
     
     if not user:
         return jsonify({'message': 'User not found'}), 404
