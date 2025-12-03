@@ -51,6 +51,11 @@ def create_app():
         @app.route('/api/health')
         def health_check():
             return jsonify({'status': 'healthy', 'message': 'Server is running'}), 200
+
+        # Serve uploaded files
+        @app.route('/uploads/<path:filename>')
+        def uploaded_file(filename):
+            return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
             
     except Exception as e:
         print(f"Error registering blueprints: {str(e)}")
