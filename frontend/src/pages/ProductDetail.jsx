@@ -57,7 +57,7 @@ const ProductDetail = () => {
                 <div className="space-y-4">
                     <div className="aspect-w-4 aspect-h-3 rounded-lg overflow-hidden bg-gray-100">
                         <img
-                            src={product.image_url || 'https://placehold.co/600x400?text=No+Image'}
+                            src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : `http://localhost:5001${product.image_url}`) : 'https://placehold.co/600x400?text=No+Image'}
                             alt={product.name}
                             className="object-cover w-full h-full"
                         />

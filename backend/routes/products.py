@@ -227,7 +227,7 @@ def update_product(id):
             filename = secure_filename(file.filename)
             unique_filename = f"{uuid.uuid4()}_{filename}"
             file.save(os.path.join(current_app.config['UPLOAD_FOLDER'], unique_filename))
-            product.image_url = f"{request.host_url}uploads/{unique_filename}"
+            product.image_url = f"/uploads/{unique_filename}"
             
     db.session.commit()
     return jsonify({'message': 'Product updated'})

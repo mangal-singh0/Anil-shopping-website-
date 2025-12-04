@@ -99,7 +99,7 @@ const AdminProducts = () => {
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <img
-                      src={product.image_url || 'https://via.placeholder.com/50'}
+                      src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : `http://localhost:5001${product.image_url}`) : 'https://via.placeholder.com/50'}
                       alt={product.name}
                       className="h-10 w-10 rounded-full object-cover"
                     />

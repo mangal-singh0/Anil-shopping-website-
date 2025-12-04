@@ -18,7 +18,7 @@ const ProductCard = ({ product }) => {
         >
             <Link to={`/product/${product.id}`} className="block relative pt-[75%]">
                 <img
-                    src={product.image_url || 'https://placehold.co/600x400?text=No+Image'}
+                    src={product.image_url ? (product.image_url.startsWith('http') ? product.image_url : `http://localhost:5001${product.image_url}`) : 'https://placehold.co/600x400?text=No+Image'}
                     alt={product.name}
                     className="absolute top-0 left-0 w-full h-full object-cover"
                 />
