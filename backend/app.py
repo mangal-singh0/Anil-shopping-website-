@@ -28,7 +28,7 @@ def create_app():
     db.init_app(app)
     migrate = Migrate(app, db)
     jwt.init_app(app)
-    CORS(app)
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
     
     # Import models after db is initialized to avoid circular imports
     from models import User, Product, Category, Cart, CartItem, Order, OrderItem, Review, ProductImage
